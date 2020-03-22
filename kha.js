@@ -536,9 +536,16 @@ no_logic_kha_uix_app_App.prototype = $extend(no_logic_kha_uix_scene_Stage.protot
 	,__class__: no_logic_kha_uix_app_App
 });
 var LMain = function() {
+	var _gthis = this;
 	no_logic_kha_uix_app_App.call(this);
 	no_logic_kha_uix_app_App.showFPS = false;
-	this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.logo1,"logo1"));
+	this.logo1 = this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.logo1,"logo1"));
+	this.text = this.addChild(new no_logic_kha_uix_scene_Text("Hello there how is it going",null,{ font : kha_Assets.fonts.Rajdhani_Medium, fontSize : 26, color : -11184811}));
+	var t = new haxe_Timer(250);
+	t.run = function() {
+		var tmp = Math.random() * 999999999;
+		_gthis.text.text = Std.string(tmp);
+	};
 };
 $hxClasses["LMain"] = LMain;
 LMain.__name__ = "LMain";
@@ -553,10 +560,14 @@ LMain.main = function() {
 };
 LMain.__super__ = no_logic_kha_uix_app_App;
 LMain.prototype = $extend(no_logic_kha_uix_app_App.prototype,{
-	enterFrame: function() {
-		this._.logo1.x = no_logic_kha_uix_app_App.appWidth * 0.5 - this._.logo1.width * 0.5;
-		this._.logo1.y = no_logic_kha_uix_app_App.appHeight * 0.5 - this._.logo1.height * 0.5;
-		this._.logo1.alpha = no_logic_kha_uix_utils_MathUtils.sineCurve(0.5,3,null,null,true,no_logic_kha_uix_utils_SineBase.Positive);
+	logo1: null
+	,text: null
+	,enterFrame: function() {
+		this.logo1.x = no_logic_kha_uix_app_App.appWidth * 0.5 - this.logo1.width * 0.5;
+		this.logo1.y = no_logic_kha_uix_app_App.appHeight * 0.5 - this.logo1.height * 0.5 - 50;
+		this.logo1.alpha = no_logic_kha_uix_utils_MathUtils.sineCurve(0.5,3,null,null,true,no_logic_kha_uix_utils_SineBase.Positive);
+		this.text.x = no_logic_kha_uix_app_App.appWidth * 0.5 - this.text.width * 0.5;
+		this.text.y = no_logic_kha_uix_app_App.appHeight * 0.5 - this.text.height * 0.5 + 80;
 	}
 	,__class__: LMain
 });
@@ -1027,6 +1038,20 @@ haxe_Log.trace = function(v,infos) {
 	if(typeof(console) != "undefined" && console.log != null) {
 		console.log(str);
 	}
+};
+var haxe_Timer = function(time_ms) {
+	var me = this;
+	this.id = kha_Scheduler.addTimeTask(function() {
+		me.run();
+	},time_ms / 1000,time_ms / 1000);
+};
+$hxClasses["haxe.Timer"] = haxe_Timer;
+haxe_Timer.__name__ = "haxe.Timer";
+haxe_Timer.prototype = {
+	id: null
+	,run: function() {
+	}
+	,__class__: haxe_Timer
 };
 var haxe__$Unserializer_DefaultResolver = function() {
 };
@@ -3617,6 +3642,8 @@ kha__$Assets_BlobList.prototype = {
 	__class__: kha__$Assets_BlobList
 };
 var kha__$Assets_FontList = function() {
+	this.Rajdhani_MediumDescription = { name : "Rajdhani_Medium", file_sizes : [384660], files : ["Rajdhani_Medium.ttf"], type : "font"};
+	this.Rajdhani_Medium = null;
 };
 $hxClasses["kha._Assets.FontList"] = kha__$Assets_FontList;
 kha__$Assets_FontList.__name__ = "kha._Assets.FontList";
@@ -3624,6 +3651,8 @@ kha__$Assets_FontList.prototype = {
 	get: function(name) {
 		return Reflect.field(this,name);
 	}
+	,Rajdhani_Medium: null
+	,Rajdhani_MediumDescription: null
 	,__class__: kha__$Assets_FontList
 };
 var kha__$Assets_VideoList = function() {
@@ -18436,6 +18465,7 @@ var no_logic_kha_uix_scene_Text = function(text,name,data) {
 	if(text != null) {
 		this.text = text;
 	}
+	this.isDirty = true;
 };
 $hxClasses["no.logic.kha.uix.scene.Text"] = no_logic_kha_uix_scene_Text;
 no_logic_kha_uix_scene_Text.__name__ = "no.logic.kha.uix.scene.Text";
@@ -18466,7 +18496,7 @@ no_logic_kha_uix_scene_Text.prototype = $extend(no_logic_kha_uix_scene_Sprite.pr
 	}
 	,update: function() {
 		no_logic_kha_uix_scene_Sprite.prototype.update.call(this);
-		if(this.text != null && this.isDirty) {
+		if(this.g != null && this.text != null && this.g.get_font() != null && this.isDirty) {
 			this.width = this.g.get_font().width(this.fontSize,this.text);
 			this.height = this.g.get_font().height(this.fontSize);
 		}
