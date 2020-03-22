@@ -463,6 +463,7 @@ no_logic_kha_uix_app_App.init = function(baseClass) {
 	so.width = no_logic_kha_uix_app_App.appWidth;
 	so.height = no_logic_kha_uix_app_App.appHeight;
 	so.window = wo;
+	no_logic_kha_uix_app_App.dpi = kha_Display.get_primary().get_pixelsPerInch();
 	kha_System.start(so,no_logic_kha_uix_app_App.onStart);
 };
 no_logic_kha_uix_app_App.onStart = function(w) {
@@ -543,8 +544,7 @@ var LMain = function() {
 	this.text = this.addChild(new no_logic_kha_uix_scene_Text("Hello there how is it going",null,{ font : kha_Assets.fonts.Rajdhani_Medium, fontSize : 26, color : -11184811}));
 	var t = new haxe_Timer(250);
 	t.run = function() {
-		var tmp = Math.random() * 999999999;
-		_gthis.text.text = Std.string(tmp);
+		_gthis.text.text = "DPI : " + no_logic_kha_uix_app_App.dpi;
 	};
 };
 $hxClasses["LMain"] = LMain;
@@ -4115,8 +4115,20 @@ kha_Display.prototype = {
 	get_frequency: function() {
 		return 60;
 	}
+	,get_pixelsPerInch: function() {
+		var dpiElement = window.document.createElement("div");
+		dpiElement.style.position = "absolute";
+		dpiElement.style.width = "1in";
+		dpiElement.style.height = "1in";
+		dpiElement.style.left = "-100%";
+		dpiElement.style.top = "-100%";
+		window.document.body.appendChild(dpiElement);
+		var dpi = dpiElement.offsetHeight;
+		dpiElement.remove();
+		return dpi;
+	}
 	,__class__: kha_Display
-	,__properties__: {get_frequency:"get_frequency"}
+	,__properties__: {get_pixelsPerInch:"get_pixelsPerInch",get_frequency:"get_frequency"}
 };
 var kha_DisplayMode = function() { };
 $hxClasses["kha.DisplayMode"] = kha_DisplayMode;
@@ -18886,6 +18898,7 @@ no_logic_kha_uix_app_App.windowMode = 0;
 no_logic_kha_uix_app_App.bgColor = -16777216;
 no_logic_kha_uix_app_App.mouse = true;
 no_logic_kha_uix_app_App.showFPS = true;
+no_logic_kha_uix_app_App.dpi = 72;
 Xml.Element = 0;
 Xml.PCData = 1;
 Xml.CData = 2;
