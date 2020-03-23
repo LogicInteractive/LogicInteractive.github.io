@@ -93,8 +93,11 @@ HxOverrides.iter = function(a) {
 	}};
 };
 var no_logic_kha_uix_scene_DisplayObject = function(name,data) {
+	this.isDirty = false;
+	this.isDisposed = false;
 	this.currentFrame = 1;
 	this.autoPlay = true;
+	this.clipping = true;
 	this.centery = 0;
 	this.centerx = 0;
 	this.rotation = 0;
@@ -102,8 +105,8 @@ var no_logic_kha_uix_scene_DisplayObject = function(name,data) {
 	this.scaleY = 1;
 	this.scaleX = 1;
 	this.scale = 1;
-	this.height = 128;
-	this.width = 128;
+	this.height = 0;
+	this.width = 0;
 	this.y = 0;
 	this.x = 0;
 	if(data != null) {
@@ -134,6 +137,7 @@ no_logic_kha_uix_scene_DisplayObject.prototype = {
 	,centerx: null
 	,centery: null
 	,libraryItemName: null
+	,clipping: null
 	,autoPlay: null
 	,isPlaying: null
 	,frameRate: null
@@ -143,6 +147,7 @@ no_logic_kha_uix_scene_DisplayObject.prototype = {
 	,_: null
 	,parent: null
 	,disposeOnRemove: null
+	,isDisposed: null
 	,isDirty: null
 	,dpRenderComplete: function() {
 	}
@@ -207,31 +212,58 @@ no_logic_kha_uix_scene_DisplayObject.prototype = {
 		}
 	}
 	,render: function(g) {
-		if(this.rotation != 0) {
-			g.pushRotation(no_logic_kha_uix_utils_MathUtils.degreesToRadians(this.rotation),this.width * this.centerx,this.height * this.centery);
-		}
-		if(!(this.x == 0 && this.y == 0)) {
-			g.pushTranslation(this.x * (1 / this.scaleX) - this.width * this.centerx,this.y * (1 / this.scaleY) - this.height * this.centery);
-		}
-		if(this.scaleX != 1 || this.scaleY != 1) {
-			g.scale(this.scaleX,this.scaleY);
-		}
-		var _g = 0;
-		var _g1 = this.children;
-		while(_g < _g1.length) {
-			var c = _g1[_g];
-			++_g;
-			c.render(g);
-		}
-		this.dpRenderComplete();
-		if(this.scaleX != 1 || this.scaleY != 1) {
-			g.scale(1 / this.scaleX,1 / this.scaleY);
-		}
-		if(!(this.x == 0 && this.y == 0)) {
-			g.popTransformation();
-		}
-		if(this.rotation != 0) {
-			g.popTransformation();
+		if(!((this) instanceof no_logic_kha_uix_scene_Stage)) {
+			var _x = this.parent != null ? no_logic_kha_uix_utils_Convert.toFloat(this.x,this.parent.width) : no_logic_kha_uix_utils_Convert.toFloat(this.x);
+			var _y = this.parent != null ? no_logic_kha_uix_utils_Convert.toFloat(this.y,this.parent.height) : no_logic_kha_uix_utils_Convert.toFloat(this.y);
+			var _width = this.parent != null ? no_logic_kha_uix_utils_Convert.toFloat(this.width,this.parent.width) : no_logic_kha_uix_utils_Convert.toFloat(this.width);
+			var _height = this.parent != null ? no_logic_kha_uix_utils_Convert.toFloat(this.height,this.parent.height) : no_logic_kha_uix_utils_Convert.toFloat(this.height);
+			if(this.rotation != 0) {
+				g.pushRotation(no_logic_kha_uix_utils_MathUtils.degreesToRadians(this.rotation),_width * this.centerx,_height * this.centery);
+			}
+			if(!(_x == 0 && _y == 0)) {
+				g.pushTranslation(_x * (1 / this.scaleX) - _width * this.centerx,_y * (1 / this.scaleY) - _height * this.centery);
+			}
+			if(this.scaleX != 1 || this.scaleY != 1) {
+				g.scale(this.scaleX,this.scaleY);
+			}
+			var _g = 0;
+			var _g1 = this.children;
+			while(_g < _g1.length) {
+				var c = _g1[_g];
+				++_g;
+				c.render(g);
+			}
+			if(this.clipping) {
+				g.scissor(_x,_y,_width,_height);
+			}
+			this.dpRenderComplete();
+			if(this.clipping) {
+				g.disableScissor();
+			}
+			if(this.scaleX != 1 || this.scaleY != 1) {
+				g.scale(1 / this.scaleX,1 / this.scaleY);
+			}
+			if(!(_x == 0 && _y == 0)) {
+				g.popTransformation();
+			}
+			if(this.rotation != 0) {
+				g.popTransformation();
+			}
+		} else {
+			var _g2 = 0;
+			var _g11 = this.children;
+			while(_g2 < _g11.length) {
+				var c1 = _g11[_g2];
+				++_g2;
+				c1.render(g);
+			}
+			if(this.clipping) {
+				g.scissor(0,0,no_logic_kha_uix_app_App.appWidth,no_logic_kha_uix_app_App.appHeight);
+			}
+			this.dpRenderComplete();
+			if(this.clipping) {
+				g.disableScissor();
+			}
 		}
 	}
 	,setPropsFromData: function(data) {
@@ -249,12 +281,15 @@ no_logic_kha_uix_scene_DisplayObject.prototype = {
 		}
 	}
 	,dispose: function() {
+		if(!this.isDisposed) {
+			this.isDisposed = true;
+		}
 	}
 	,__class__: no_logic_kha_uix_scene_DisplayObject
 };
 var no_logic_kha_uix_scene_Shape = function(name,data) {
 	this.color = -1;
-	this.fillColor = -1;
+	this.fillColor = -16777216;
 	this.fill = false;
 	no_logic_kha_uix_scene_DisplayObject.call(this,name,data);
 };
@@ -288,10 +323,15 @@ no_logic_kha_uix_scene_Shape.prototype = $extend(no_logic_kha_uix_scene_DisplayO
 		this.g = g;
 		no_logic_kha_uix_scene_DisplayObject.prototype.render.call(this,g);
 	}
+	,set_fillColor: function(value) {
+		this.fill = true;
+		return this.fillColor = value;
+	}
 	,dispose: function() {
 		no_logic_kha_uix_scene_DisplayObject.prototype.dispose.call(this);
 	}
 	,__class__: no_logic_kha_uix_scene_Shape
+	,__properties__: {set_fillColor:"set_fillColor"}
 });
 var no_logic_kha_uix_scene_Sprite = function(name,data) {
 	no_logic_kha_uix_scene_Shape.call(this,name,data);
@@ -417,7 +457,7 @@ no_logic_kha_uix_scene_Sprite.prototype = $extend(no_logic_kha_uix_scene_Shape.p
 		no_logic_kha_uix_scene_Shape.prototype.dispose.call(this);
 	}
 	,__class__: no_logic_kha_uix_scene_Sprite
-	,__properties__: {get_numFrames:"get_numFrames"}
+	,__properties__: $extend(no_logic_kha_uix_scene_Shape.prototype.__properties__,{get_numFrames:"get_numFrames"})
 });
 var no_logic_kha_uix_scene_Stage = function() {
 	no_logic_kha_uix_scene_Sprite.call(this,"Stage");
@@ -480,6 +520,8 @@ no_logic_kha_uix_app_App.onStart = function(w) {
 };
 no_logic_kha_uix_app_App.baseUpdate = function() {
 	no_logic_kha_uix_app_App.preUpdate();
+	no_logic_kha_uix_app_App.stage.width = no_logic_kha_uix_app_App.appWidth;
+	no_logic_kha_uix_app_App.stage.height = no_logic_kha_uix_app_App.appHeight;
 	no_logic_kha_uix_app_App.stage.update();
 	no_logic_kha_uix_app_App.postUpdate();
 };
@@ -540,11 +582,13 @@ var LMain = function() {
 	var _gthis = this;
 	no_logic_kha_uix_app_App.call(this);
 	no_logic_kha_uix_app_App.showFPS = false;
+	this.gridx = this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.gridx,"gridx",{ scaleMode : no_logic_kha_uix_scene_ScaleMode.FILL}));
 	this.logo1 = this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.logo1,"logo1"));
 	this.text = this.addChild(new no_logic_kha_uix_scene_Text("Hello there how is it going",null,{ font : kha_Assets.fonts.Rajdhani_Medium, fontSize : 26, color : -11184811}));
 	var t = new haxe_Timer(250);
 	t.run = function() {
-		_gthis.text.text = "DPI : " + no_logic_kha_uix_app_App.dpi;
+		var tmp = Math.random() * 999999999;
+		_gthis.text.text = Std.string(tmp);
 	};
 };
 $hxClasses["LMain"] = LMain;
@@ -553,16 +597,19 @@ LMain.main = function() {
 	no_logic_kha_uix_app_App.appName = "Logic Interactive";
 	no_logic_kha_uix_app_App.appWidth = 1920;
 	no_logic_kha_uix_app_App.appHeight = 1080;
-	no_logic_kha_uix_app_App.bgColor = 0;
+	no_logic_kha_uix_app_App.bgColor = 267387084;
 	no_logic_kha_uix_app_App.windowMode = 0;
 	no_logic_kha_uix_app_App.mouse = true;
 	no_logic_kha_uix_app_App.init(LMain);
 };
 LMain.__super__ = no_logic_kha_uix_app_App;
 LMain.prototype = $extend(no_logic_kha_uix_app_App.prototype,{
-	logo1: null
+	gridx: null
+	,logo1: null
 	,text: null
 	,enterFrame: function() {
+		this.gridx.width = no_logic_kha_uix_app_App.appWidth;
+		this.gridx.height = no_logic_kha_uix_app_App.appHeight;
 		this.logo1.x = no_logic_kha_uix_app_App.appWidth * 0.5 - this.logo1.width * 0.5;
 		this.logo1.y = no_logic_kha_uix_app_App.appHeight * 0.5 - this.logo1.height * 0.5 - 50;
 		this.logo1.alpha = no_logic_kha_uix_utils_MathUtils.sineCurve(0.5,3,null,null,true,no_logic_kha_uix_utils_SineBase.Positive);
@@ -3619,11 +3666,15 @@ js_Boot.__resolveNativeClass = function(name) {
 var kha__$Assets_ImageList = function() {
 	this.logo1Description = { name : "logo1", original_height : 101, file_sizes : [801], original_width : 211, files : ["logo1.png"], type : "image"};
 	this.logo1 = null;
+	this.gridxDescription = { name : "gridx", original_height : 900, file_sizes : [5753], original_width : 900, files : ["gridx.png"], type : "image"};
+	this.gridx = null;
 };
 $hxClasses["kha._Assets.ImageList"] = kha__$Assets_ImageList;
 kha__$Assets_ImageList.__name__ = "kha._Assets.ImageList";
 kha__$Assets_ImageList.prototype = {
-	logo1: null
+	gridx: null
+	,gridxDescription: null
+	,logo1: null
 	,logo1Description: null
 	,__class__: kha__$Assets_ImageList
 };
@@ -3642,8 +3693,16 @@ kha__$Assets_BlobList.prototype = {
 	__class__: kha__$Assets_BlobList
 };
 var kha__$Assets_FontList = function() {
+	this.Rajdhani_SemiboldDescription = { name : "Rajdhani_Semibold", file_sizes : [390512], files : ["Rajdhani_Semibold.ttf"], type : "font"};
+	this.Rajdhani_Semibold = null;
+	this.Rajdhani_RegularDescription = { name : "Rajdhani_Regular", file_sizes : [377956], files : ["Rajdhani_Regular.ttf"], type : "font"};
+	this.Rajdhani_Regular = null;
 	this.Rajdhani_MediumDescription = { name : "Rajdhani_Medium", file_sizes : [384660], files : ["Rajdhani_Medium.ttf"], type : "font"};
 	this.Rajdhani_Medium = null;
+	this.Rajdhani_LightDescription = { name : "Rajdhani_Light", file_sizes : [384236], files : ["Rajdhani_Light.ttf"], type : "font"};
+	this.Rajdhani_Light = null;
+	this.Rajdhani_BoldDescription = { name : "Rajdhani_Bold", file_sizes : [401028], files : ["Rajdhani_Bold.ttf"], type : "font"};
+	this.Rajdhani_Bold = null;
 };
 $hxClasses["kha._Assets.FontList"] = kha__$Assets_FontList;
 kha__$Assets_FontList.__name__ = "kha._Assets.FontList";
@@ -3651,8 +3710,16 @@ kha__$Assets_FontList.prototype = {
 	get: function(name) {
 		return Reflect.field(this,name);
 	}
+	,Rajdhani_Bold: null
+	,Rajdhani_BoldDescription: null
+	,Rajdhani_Light: null
+	,Rajdhani_LightDescription: null
 	,Rajdhani_Medium: null
 	,Rajdhani_MediumDescription: null
+	,Rajdhani_Regular: null
+	,Rajdhani_RegularDescription: null
+	,Rajdhani_Semibold: null
+	,Rajdhani_SemiboldDescription: null
 	,__class__: kha__$Assets_FontList
 };
 var kha__$Assets_VideoList = function() {
@@ -10983,6 +11050,9 @@ kha_graphics2_Graphics.prototype = {
 	,drawSubImage: function(img,x,y,sx,sy,sw,sh) {
 		this.drawScaledSubImage(img,sx,sy,sw,sh,x,y,sw,sh);
 	}
+	,drawScaledImage: function(img,dx,dy,dw,dh) {
+		this.drawScaledSubImage(img,0,0,img.get_width(),img.get_height(),dx,dy,dw,dh);
+	}
 	,drawScaledSubImage: function(image,sx,sy,sw,sh,dx,dy,dw,dh) {
 	}
 	,fillRect: function(x,y,width,height) {
@@ -10993,6 +11063,12 @@ kha_graphics2_Graphics.prototype = {
 		if(strength == null) {
 			strength = 1.0;
 		}
+	}
+	,get_imageScaleQuality: function() {
+		return 0;
+	}
+	,set_imageScaleQuality: function(value) {
+		return 1;
 	}
 	,set_color: function(color) {
 		return -16777216;
@@ -11174,7 +11250,7 @@ kha_graphics2_Graphics.prototype = {
 	,setOpacity: function(opacity) {
 	}
 	,__class__: kha_graphics2_Graphics
-	,__properties__: {set_opacity:"set_opacity",get_opacity:"get_opacity",set_fontSize:"set_fontSize",get_fontSize:"get_fontSize",set_font:"set_font",get_font:"get_font",set_color:"set_color"}
+	,__properties__: {set_opacity:"set_opacity",get_opacity:"get_opacity",set_fontSize:"set_fontSize",get_fontSize:"get_fontSize",set_font:"set_font",get_font:"get_font",set_color:"set_color",set_imageScaleQuality:"set_imageScaleQuality",get_imageScaleQuality:"get_imageScaleQuality"}
 };
 var kha_graphics2_Graphics1 = function(canvas) {
 	this.canvas = canvas;
@@ -13268,6 +13344,10 @@ kha_graphics4_ImageShaderPainter.prototype = {
 		kha_graphics4_ImageShaderPainter.bufferIndex = 0;
 		kha_graphics4_ImageShaderPainter.rectVertices = kha_graphics4_ImageShaderPainter.rectVertexBuffer.lock();
 	}
+	,setBilinearFilter: function(bilinear) {
+		this.end();
+		this.bilinear = bilinear;
+	}
 	,end: function() {
 		if(kha_graphics4_ImageShaderPainter.bufferIndex > 0) {
 			this.drawBuffer();
@@ -13585,6 +13665,10 @@ kha_graphics4_TextShaderPainter.prototype = {
 		kha_graphics4_TextShaderPainter.bufferIndex = 0;
 		kha_graphics4_TextShaderPainter.rectVertices = kha_graphics4_TextShaderPainter.rectVertexBuffer.lock();
 	}
+	,setBilinearFilter: function(bilinear) {
+		this.end();
+		this.bilinear = bilinear;
+	}
 	,setFont: function(font) {
 		this.font = js_Boot.__cast(font , kha_Kravur);
 	}
@@ -13722,6 +13806,7 @@ var kha_graphics4_Graphics2 = function(canvas) {
 	this.scissorY = -1;
 	this.scissorX = -1;
 	this.scissorEnabled = false;
+	this.myImageScaleQuality = 0;
 	kha_graphics2_Graphics.call(this);
 	this.set_color(-1);
 	this.canvas = canvas;
@@ -14537,6 +14622,18 @@ kha_graphics4_Graphics2.prototype = $extend(kha_graphics2_Graphics.prototype,{
 		p4_y = v_y5;
 		this.coloredPainter.fillTriangle(this.get_opacity(),this.get_color(),p1_x,p1_y,p2_x,p2_y,p3_x,p3_y);
 		this.coloredPainter.fillTriangle(this.get_opacity(),this.get_color(),p3_x,p3_y,p2_x,p2_y,p4_x,p4_y);
+	}
+	,myImageScaleQuality: null
+	,get_imageScaleQuality: function() {
+		return this.myImageScaleQuality;
+	}
+	,set_imageScaleQuality: function(value) {
+		if(value == this.myImageScaleQuality) {
+			return value;
+		}
+		this.imagePainter.setBilinearFilter(value == 1);
+		this.textPainter.setBilinearFilter(value == 1);
+		return this.myImageScaleQuality = value;
 	}
 	,scissorEnabled: null
 	,scissorX: null
@@ -16023,6 +16120,7 @@ kha_js_CanvasGraphics.prototype = $extend(kha_graphics2_Graphics.prototype,{
 	canvas: null
 	,webfont: null
 	,myColor: null
+	,scaleQuality: null
 	,clipping: null
 	,begin: function(clear,clearColor) {
 		if(clear == null) {
@@ -16083,6 +16181,23 @@ kha_js_CanvasGraphics.prototype = $extend(kha_graphics2_Graphics.prototype,{
 		this.canvas.strokeStyle = "rgba(" + ((color & 16711680) >>> 16) + "," + ((color & 65280) >>> 8) + "," + (color & 255) + "," + (color >>> 24) * 0.00392156862745098 + ")";
 		this.canvas.fillStyle = "rgba(" + ((color & 16711680) >>> 16) + "," + ((color & 65280) >>> 8) + "," + (color & 255) + "," + (color >>> 24) * 0.00392156862745098 + ")";
 		return color;
+	}
+	,get_imageScaleQuality: function() {
+		return this.scaleQuality;
+	}
+	,set_imageScaleQuality: function(value) {
+		if(value == 0) {
+			this.canvas.mozImageSmoothingEnabled = false;
+			this.canvas.webkitImageSmoothingEnabled = false;
+			this.canvas.msImageSmoothingEnabled = false;
+			this.canvas.imageSmoothingEnabled = false;
+		} else {
+			this.canvas.mozImageSmoothingEnabled = true;
+			this.canvas.webkitImageSmoothingEnabled = true;
+			this.canvas.msImageSmoothingEnabled = true;
+			this.canvas.imageSmoothingEnabled = true;
+		}
+		return this.scaleQuality = value;
 	}
 	,fillRect: function(x,y,width,height) {
 		var tmp = this.get_opacity();
@@ -17836,7 +17951,7 @@ no_logic_kha_uix_fla_Fla.prototype = $extend(no_logic_kha_uix_scene_Sprite.proto
 		this.width = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(xa,"width"));
 		this.height = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(xa,"height"));
 		this.frameRate = Std.parseInt(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(xa,"frameRate"));
-		this.fillColor = kha__$Color_Color_$Impl_$.fromString(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(xa,"backgroundColor"));
+		this.set_fillColor(kha__$Color_Color_$Impl_$.fromString(haxe_xml__$Access_AttribAccess_$Impl_$.resolve(xa,"backgroundColor")));
 		this.library.preloadMedia(xa);
 		this.library.parseSymbols(xa);
 		this.mediaReady(domXML.firstElement());
@@ -18390,7 +18505,16 @@ no_logic_kha_uix_graphics_Draw.text = function(string,x,y,opacity,color,fontSize
 	}
 	no_logic_kha_uix_graphics_Draw.g.drawString(string,x,y);
 };
+var no_logic_kha_uix_scene_ScaleMode = $hxEnums["no.logic.kha.uix.scene.ScaleMode"] = { __ename__ : true, __constructs__ : ["NONE","STRETCH","FILL","FIT"]
+	,NONE: {_hx_index:0,__enum__:"no.logic.kha.uix.scene.ScaleMode",toString:$estr}
+	,STRETCH: {_hx_index:1,__enum__:"no.logic.kha.uix.scene.ScaleMode",toString:$estr}
+	,FILL: {_hx_index:2,__enum__:"no.logic.kha.uix.scene.ScaleMode",toString:$estr}
+	,FIT: {_hx_index:3,__enum__:"no.logic.kha.uix.scene.ScaleMode",toString:$estr}
+};
 var no_logic_kha_uix_scene_Bitmap = function(assetOrFile,name,data) {
+	this.corsProxy = false;
+	this.scaleQuality = 1;
+	this.scaleMode = no_logic_kha_uix_scene_ScaleMode.NONE;
 	no_logic_kha_uix_scene_Sprite.call(this,name,data);
 	if(assetOrFile != null) {
 		if(((assetOrFile) instanceof kha_Image)) {
@@ -18404,7 +18528,10 @@ $hxClasses["no.logic.kha.uix.scene.Bitmap"] = no_logic_kha_uix_scene_Bitmap;
 no_logic_kha_uix_scene_Bitmap.__name__ = "no.logic.kha.uix.scene.Bitmap";
 no_logic_kha_uix_scene_Bitmap.__super__ = no_logic_kha_uix_scene_Sprite;
 no_logic_kha_uix_scene_Bitmap.prototype = $extend(no_logic_kha_uix_scene_Sprite.prototype,{
-	bitmapRenderComplete: function() {
+	scaleMode: null
+	,scaleQuality: null
+	,corsProxy: null
+	,bitmapRenderComplete: function() {
 	}
 	,bitmap: null
 	,loader: null
@@ -18414,6 +18541,7 @@ no_logic_kha_uix_scene_Bitmap.prototype = $extend(no_logic_kha_uix_scene_Sprite.
 	}
 	,load: function(file) {
 		this.loader = new no_logic_kha_uix_core_loading_UIXLoader();
+		this.loader.corsProxy = this.corsProxy;
 		this.loader.onComplete = $bind(this,this.onImageLoaded);
 		this.loader.onError = $bind(this,this.onImageLoadError);
 		this.loader.loadImage(file);
@@ -18453,18 +18581,66 @@ no_logic_kha_uix_scene_Bitmap.prototype = $extend(no_logic_kha_uix_scene_Sprite.
 			this.g.set_opacity(this.alpha);
 		}
 		if(this.bitmap != null) {
-			this.g.drawImage(this.bitmap,0,0);
+			var oisq = null;
+			if(this.g.get_imageScaleQuality() != this.scaleQuality) {
+				oisq = this.g.get_imageScaleQuality();
+				this.g.set_imageScaleQuality(this.scaleQuality);
+			}
+			if(this.scaleMode == no_logic_kha_uix_scene_ScaleMode.NONE) {
+				this.g.drawImage(this.bitmap,0,0);
+			} else if(this.scaleMode == no_logic_kha_uix_scene_ScaleMode.STRETCH) {
+				this.g.drawScaledImage(this.bitmap,0,0,this.width,this.height);
+			} else if(this.scaleMode == no_logic_kha_uix_scene_ScaleMode.FILL) {
+				var r = this.fitIntoRect(this.bitmap.get_width(),this.bitmap.get_height(),this.width,this.height,true);
+				this.g.drawScaledImage(this.bitmap,r.x,r.y,r.width,r.height);
+			} else if(this.scaleMode == no_logic_kha_uix_scene_ScaleMode.FIT) {
+				var r1 = this.fitIntoRect(this.bitmap.get_width(),this.bitmap.get_height(),this.width,this.height,false);
+				this.g.drawScaledImage(this.bitmap,r1.x,r1.y,r1.width,r1.height);
+			}
+			if(oisq != null) {
+				this.g.set_imageScaleQuality(oisq);
+			}
 		}
 	}
 	,update: function() {
 		if(this.bitmap != null) {
-			this.width = this.bitmap.get_width();
-			this.height = this.bitmap.get_height();
+			if(this.width == 0) {
+				this.width = this.bitmap.get_width();
+			}
+			if(this.height == 0) {
+				this.height = this.bitmap.get_height();
+			}
 		}
 		no_logic_kha_uix_scene_Sprite.prototype.update.call(this);
 	}
 	,render: function(g) {
 		no_logic_kha_uix_scene_Sprite.prototype.render.call(this,g);
+	}
+	,fitIntoRect: function(sourceWidth,sourceHeight,targetWidth,targetHeight,fill) {
+		if(fill == null) {
+			fill = false;
+		}
+		var r = new no_logic_kha_uix_types_Rectangle();
+		if(fill) {
+			r.height = targetHeight;
+			r.width = r.height * sourceWidth / sourceHeight;
+			if(r.width < targetWidth) {
+				r.width = targetWidth;
+				r.height = r.width * sourceHeight / sourceWidth;
+			}
+			r.x = targetWidth * 0.5 - r.width * 0.5;
+			r.y = targetHeight * 0.5 - r.height * 0.5;
+		} else {
+			r.width = targetWidth;
+			r.height = r.width * sourceHeight / sourceWidth;
+			if(r.height > targetHeight) {
+				r.height = targetHeight;
+				r.width = r.height * sourceWidth / sourceHeight;
+			}
+			r.x = targetWidth * 0.5 - r.width * 0.5;
+			r.y = targetHeight * 0.5 - r.height * 0.5;
+		}
+		return r;
 	}
 	,dispose: function() {
 		no_logic_kha_uix_scene_Sprite.prototype.dispose.call(this);
@@ -18548,11 +18724,61 @@ haxe_lang_Iterable.prototype = {
 	iterator: null
 	,__class__: haxe_lang_Iterable
 };
+var no_logic_kha_uix_types_Rectangle = function(x,y,width,height) {
+	if(height == null) {
+		height = 0;
+	}
+	if(width == null) {
+		width = 0;
+	}
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	this.x = x;
+	this.y = y;
+	this.width = width;
+	this.height = height;
+};
+$hxClasses["no.logic.kha.uix.types.Rectangle"] = no_logic_kha_uix_types_Rectangle;
+no_logic_kha_uix_types_Rectangle.__name__ = "no.logic.kha.uix.types.Rectangle";
+no_logic_kha_uix_types_Rectangle.prototype = {
+	x: null
+	,y: null
+	,width: null
+	,height: null
+	,__class__: no_logic_kha_uix_types_Rectangle
+};
 var no_logic_kha_uix_utils_Convert = function() { };
 $hxClasses["no.logic.kha.uix.utils.Convert"] = no_logic_kha_uix_utils_Convert;
 no_logic_kha_uix_utils_Convert.__name__ = "no.logic.kha.uix.utils.Convert";
 no_logic_kha_uix_utils_Convert.toBool = function(value) {
 	return false;
+};
+no_logic_kha_uix_utils_Convert.toFloat = function(value,percentOfValue) {
+	if(value == null) {
+		return 0;
+	}
+	if(typeof(value) == "string") {
+		if(no_logic_kha_uix_utils_StringUtils.contains(value,"%")) {
+			var ta = value.split("%");
+			if(ta != null) {
+				if(percentOfValue != null) {
+					return parseFloat(Std.string(ta[0] * percentOfValue * 0.01));
+				} else {
+					return parseFloat(Std.string(ta[0]));
+				}
+			} else {
+				return 0;
+			}
+		} else {
+			return parseFloat(value);
+		}
+	} else {
+		return parseFloat(Std.string(value));
+	}
 };
 var no_logic_kha_uix_utils_ImageUtils = function() { };
 $hxClasses["no.logic.kha.uix.utils.ImageUtils"] = no_logic_kha_uix_utils_ImageUtils;
@@ -18628,6 +18854,12 @@ no_logic_kha_uix_utils_StringUtils.enforceFourDigitNumberToString = function(num
 	}
 	enf += Std.string(num);
 	return enf;
+};
+no_logic_kha_uix_utils_StringUtils.contains = function(inStr,match) {
+	if(inStr == null || match == null) {
+		return false;
+	}
+	return inStr.indexOf(match) != -1;
 };
 no_logic_kha_uix_utils_StringUtils.floatToString = function(float,numDecimals) {
 	if(numDecimals == null) {
