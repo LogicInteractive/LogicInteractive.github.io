@@ -19334,6 +19334,7 @@ no_logic_kha_uix_scene_Bitmap.prototype = $extend(no_logic_kha_uix_scene_Sprite.
 });
 var no_logic_kha_uix_scene_Text = function(text,name,data) {
 	this.fontSize = 16;
+	this.scaleQuality = 1;
 	no_logic_kha_uix_scene_Sprite.call(this,name,data);
 	if(text != null) {
 		this.text = text;
@@ -19344,7 +19345,8 @@ $hxClasses["no.logic.kha.uix.scene.Text"] = no_logic_kha_uix_scene_Text;
 no_logic_kha_uix_scene_Text.__name__ = "no.logic.kha.uix.scene.Text";
 no_logic_kha_uix_scene_Text.__super__ = no_logic_kha_uix_scene_Sprite;
 no_logic_kha_uix_scene_Text.prototype = $extend(no_logic_kha_uix_scene_Sprite.prototype,{
-	text: null
+	scaleQuality: null
+	,text: null
 	,font: null
 	,fontSize: null
 	,textRenderComplete: function() {
@@ -19365,7 +19367,15 @@ no_logic_kha_uix_scene_Text.prototype = $extend(no_logic_kha_uix_scene_Sprite.pr
 		this.g.set_color(this.color);
 		this.g.set_opacity(this.alpha);
 		this.g.set_fontSize(this.fontSize);
+		var oisq = null;
+		if(this.g.get_imageScaleQuality() != this.scaleQuality) {
+			oisq = this.g.get_imageScaleQuality();
+			this.g.set_imageScaleQuality(this.scaleQuality);
+		}
 		this.g.drawString(this.text,0,0);
+		if(oisq != null) {
+			this.g.set_imageScaleQuality(oisq);
+		}
 	}
 	,update: function() {
 		no_logic_kha_uix_scene_Sprite.prototype.update.call(this);
