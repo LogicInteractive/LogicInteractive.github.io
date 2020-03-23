@@ -600,7 +600,8 @@ var LMain = function() {
 	var _gthis = this;
 	no_logic_kha_uix_app_App.call(this);
 	no_logic_kha_uix_app_App.showFPS = false;
-	this.gridx = this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.gridx,"gridx",{ scaleMode : no_logic_kha_uix_scene_ScaleMode.FILL}));
+	this.dt3 = this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.dt3,"dt3",{ scaleMode : no_logic_kha_uix_scene_ScaleMode.FILL, alpha : 0.99}));
+	this.gridx = this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.gridx,"gridx",{ scaleMode : no_logic_kha_uix_scene_ScaleMode.FILL, alpha : 0.6}));
 	this.logo1 = this.addChild(new no_logic_kha_uix_scene_Bitmap(kha_Assets.images.logo1,"logo1"));
 	this.text = this.addChild(new no_logic_kha_uix_scene_Text(null,null,{ font : kha_Assets.fonts.Rajdhani_Medium, fontSize : 26, color : -3355444}));
 	var t = new haxe_Timer(250);
@@ -623,10 +624,13 @@ LMain.main = function() {
 };
 LMain.__super__ = no_logic_kha_uix_app_App;
 LMain.prototype = $extend(no_logic_kha_uix_app_App.prototype,{
-	gridx: null
+	dt3: null
+	,gridx: null
 	,logo1: null
 	,text: null
 	,enterFrame: function() {
+		this.dt3.width = no_logic_kha_uix_app_App.appWidth;
+		this.dt3.height = no_logic_kha_uix_app_App.appHeight;
 		this.gridx.width = no_logic_kha_uix_app_App.appWidth;
 		this.gridx.height = no_logic_kha_uix_app_App.appHeight;
 		this.logo1.x = no_logic_kha_uix_app_App.appWidth * 0.5 - this.logo1.width * 0.5;
@@ -3721,11 +3725,15 @@ var kha__$Assets_ImageList = function() {
 	this.logo1 = null;
 	this.gridxDescription = { name : "gridx", original_height : 900, file_sizes : [5753], original_width : 900, files : ["gridx.png"], type : "image"};
 	this.gridx = null;
+	this.dt3Description = { name : "dt3", original_height : 540, file_sizes : [48685], original_width : 960, files : ["dt3.jpg"], type : "image"};
+	this.dt3 = null;
 };
 $hxClasses["kha._Assets.ImageList"] = kha__$Assets_ImageList;
 kha__$Assets_ImageList.__name__ = "kha._Assets.ImageList";
 kha__$Assets_ImageList.prototype = {
-	gridx: null
+	dt3: null
+	,dt3Description: null
+	,gridx: null
 	,gridxDescription: null
 	,logo1: null
 	,logo1Description: null
