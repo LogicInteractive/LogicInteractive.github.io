@@ -20065,7 +20065,11 @@ no_logic_kha_uix_audio_modplayer_ModPlayer.prototype = {
 		}
 	}
 	,createContext: function() {
-		this.context = new AudioContext();
+		if(typeof AudioContext !== 'undefined') {
+			this.context = new AudioContext();
+		} else {
+			this.context = new webkitAudioContext();
+		}
 		this.samplerate = this.context.sampleRate;
 		this.bufferlen = this.samplerate > 44100 ? 4096 : 2048;
 		this.filterNode = this.context.createBiquadFilter();
@@ -22385,6 +22389,36 @@ var no_logic_kha_uix_fla_Fla = function(bytesOrFile,autoLoad,props,initAction) {
 };
 $hxClasses["no.logic.kha.uix.fla.Fla"] = no_logic_kha_uix_fla_Fla;
 no_logic_kha_uix_fla_Fla.__name__ = "no.logic.kha.uix.fla.Fla";
+no_logic_kha_uix_fla_Fla.getRoot = function(flaName) {
+	haxe_Log.trace("Hello",{ fileName : "no/logic/kha/uix/fla/Fla.hx", lineNumber : 167, className : "no.logic.kha.uix.fla.Fla", methodName : "getRoot"});
+	if(no_logic_kha_uix_fla_Fla.fla != null && no_logic_kha_uix_fla_Fla.fla.flaTimeline != null) {
+		no_logic_kha_uix_fla_Fla.fla.setTimelineDataFromFLA(no_logic_kha_uix_fla_Fla.fla.flaTimeline);
+		return no_logic_kha_uix_fla_Fla.fla;
+	} else {
+		return null;
+	}
+};
+no_logic_kha_uix_fla_Fla.getSymbol = function(symbolName,flaName) {
+	var tmp;
+	if(no_logic_kha_uix_fla_Fla.l != null) {
+		var _this = no_logic_kha_uix_fla_Fla.l.symbols;
+		tmp = __map_reserved[symbolName] != null ? _this.existsReserved(symbolName) : _this.h.hasOwnProperty(symbolName);
+	} else {
+		tmp = false;
+	}
+	if(tmp) {
+		var _this1 = no_logic_kha_uix_fla_Fla.l.symbols;
+		var fs = __map_reserved[symbolName] != null ? _this1.getReserved(symbolName) : _this1.h[symbolName];
+		if(fs != null) {
+			var mc = new no_logic_kha_uix_scene_Sprite({ name : fs.name + no_logic_kha_uix_fla_FlaElement.elementCount++});
+			mc.setTimelineDataFromFLA(fs.timeline);
+			return mc;
+		} else {
+			return null;
+		}
+	}
+	return null;
+};
 no_logic_kha_uix_fla_Fla.__super__ = no_logic_kha_uix_scene_Sprite;
 no_logic_kha_uix_fla_Fla.prototype = $extend(no_logic_kha_uix_scene_Sprite.prototype,{
 	initAction: null
