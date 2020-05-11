@@ -1245,7 +1245,7 @@ FlaMain1.main = function() {
 	no_logic_kha_uix_app_App.set_windowMode(0);
 	no_logic_kha_uix_app_App.showMouse = true;
 	no_logic_kha_uix_app_App.kontentumExhibit = "jn9vao";
-	no_logic_kha_uix_app_App.preloadFLA = "myFla2.fla";
+	no_logic_kha_uix_app_App.preloadFLA = "testfla.dat";
 	no_logic_kha_uix_app_App.init(FlaMain1);
 };
 FlaMain1.__super__ = no_logic_kha_uix_app_App;
