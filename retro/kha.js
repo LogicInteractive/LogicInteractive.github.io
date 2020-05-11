@@ -1405,7 +1405,7 @@ STMain.main = function() {
 	no_logic_kha_uix_app_App.bgColor = -16777216;
 	no_logic_kha_uix_app_App.set_windowMode(0);
 	no_logic_kha_uix_app_App.showMouse = true;
-	no_logic_kha_uix_app_App.kontentumExhibit = "ezgok0";
+	no_logic_kha_uix_app_App.kontentumExhibit = "jn9vao";
 	no_logic_kha_uix_app_App.kontentumLiveUpdate = false;
 	no_logic_kha_uix_app_App.init(STMain);
 };
