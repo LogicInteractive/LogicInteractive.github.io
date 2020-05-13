@@ -1370,6 +1370,7 @@ var STMain = function() {
 	var _gthis = this;
 	no_logic_kha_uix_app_App.call(this);
 	this.rt = kha_Image.createRenderTarget(no_logic_kha_uix_app_App.appWidth,128);
+	this.pipeline = no_logic_kha_uix_graphics_shaders_PipelineTools.createPipeline(kha_Shaders.sinescroll_frag);
 	this.stars = [];
 	var numStars = 1000;
 	var _g = 0;
@@ -1420,6 +1421,7 @@ STMain.prototype = $extend(no_logic_kha_uix_app_App.prototype,{
 	,bmFont: null
 	,numLetters: null
 	,rt: null
+	,pipeline: null
 	,render: function(g) {
 		no_logic_kha_uix_app_App.prototype.render.call(this,g);
 		g.set_color(-1);
@@ -1445,9 +1447,6 @@ STMain.prototype = $extend(no_logic_kha_uix_app_App.prototype,{
 			kha_graphics2_GraphicsExtension.fillCircle(no_logic_kha_uix_graphics_Draw.g,cx,cy,radius,segments);
 		}
 		g.set_opacity(1);
-		if(this.rt != null) {
-			g.drawImage(this.rt,0,no_logic_kha_uix_utils_MathUtils.sineCurve(300,2,no_logic_kha_uix_app_App.appHeight * 0.5 - 64.,null,null,no_logic_kha_uix_utils_SineBase.Zero));
-		}
 	}
 	,nextScrollLetter: function() {
 		this.fi++;
@@ -1471,6 +1470,19 @@ STMain.prototype = $extend(no_logic_kha_uix_app_App.prototype,{
 		var t = this.scrollText.substring(this.fi,this.fi + this.numLetters);
 		this.bmFont.drawString(gRT,this.scrollTextX + this.letterW,0,t);
 		gRT.end();
+		f.get_g4().setPipeline(this.pipeline);
+		f.get_g4().setFloat(this.pipeline.getConstantLocation("amplitude"),no_logic_kha_uix_utils_MathUtils.sineCurve(3,0.5,0.5,0,true,no_logic_kha_uix_utils_SineBase.Zero));
+		f.get_g4().setFloat(this.pipeline.getConstantLocation("frequency"),no_logic_kha_uix_utils_MathUtils.sineCurve(4,1,0,0,true,no_logic_kha_uix_utils_SineBase.Zero) * 3);
+		f.get_g4().setVector2(this.pipeline.getConstantLocation("resolution"),new kha_math_FastVector2(no_logic_kha_uix_app_App.appWidth,no_logic_kha_uix_app_App.appHeight));
+		f.get_g4().setVector2(this.pipeline.getConstantLocation("scrollRes"),new kha_math_FastVector2(this.rt.get_width(),this.rt.get_height()));
+		f.get_g4().setFloat(this.pipeline.getConstantLocation("yoffset"),no_logic_kha_uix_app_App.appHeight * 0.5);
+		f.get_g2().set_pipeline(this.pipeline);
+		f.get_g2().begin(false);
+		f.get_g2().set_opacity(1);
+		f.get_g2().set_color(-1);
+		f.get_g2().drawScaledImage(this.rt,0,0,no_logic_kha_uix_app_App.appWidth,no_logic_kha_uix_app_App.appHeight);
+		f.get_g2().end();
+		f.get_g2().set_pipeline(null);
 	}
 	,__class__: STMain
 });
@@ -6155,6 +6167,17 @@ kha_Shaders.init = function() {
 	var bytes32 = haxe_Unserializer.run(data32);
 	blobs10.push(kha_internal_BytesBlob.fromBytes(bytes32));
 	kha_Shaders.simple_vert = new kha_graphics4_VertexShader(blobs10,["simple.vert.essl","simple-webgl2.vert.essl","simple-relaxed.vert.essl"]);
+	var blobs11 = [];
+	var data33 = Reflect.field(kha_Shaders,"sinescroll_fragData" + 0);
+	var bytes33 = haxe_Unserializer.run(data33);
+	blobs11.push(kha_internal_BytesBlob.fromBytes(bytes33));
+	var data34 = Reflect.field(kha_Shaders,"sinescroll_fragData" + 1);
+	var bytes34 = haxe_Unserializer.run(data34);
+	blobs11.push(kha_internal_BytesBlob.fromBytes(bytes34));
+	var data35 = Reflect.field(kha_Shaders,"sinescroll_fragData" + 2);
+	var bytes35 = haxe_Unserializer.run(data35);
+	blobs11.push(kha_internal_BytesBlob.fromBytes(bytes35));
+	kha_Shaders.sinescroll_frag = new kha_graphics4_FragmentShader(blobs11,["sinescroll.frag.essl","sinescroll-webgl2.frag.essl","sinescroll-relaxed.frag.essl"]);
 };
 var kha_Sound = function() {
 	this.sampleRate = 0;
@@ -6521,7 +6544,7 @@ kha_SystemImpl.getCanvasElement = function() {
 	if(kha_SystemImpl.khanvas != null) {
 		return kha_SystemImpl.khanvas;
 	}
-	return window.document.getElementById("khanvas");
+	return window.document.getElementById("uix");
 };
 kha_SystemImpl.loadFinished = function(defaultWidth,defaultHeight) {
 	var canvas = kha_SystemImpl.getCanvasElement();
@@ -12449,6 +12472,10 @@ kha_graphics2_Graphics.prototype = {
 	,disableScissor: function() {
 	}
 	,pipe: null
+	,set_pipeline: function(pipeline) {
+		this.setPipeline(pipeline);
+		return this.pipe = pipeline;
+	}
 	,transformations: null
 	,transformationIndex: null
 	,opacities: null
@@ -12457,8 +12484,10 @@ kha_graphics2_Graphics.prototype = {
 	}
 	,setOpacity: function(opacity) {
 	}
+	,setPipeline: function(pipeline) {
+	}
 	,__class__: kha_graphics2_Graphics
-	,__properties__: {set_opacity:"set_opacity",get_opacity:"get_opacity",set_fontSize:"set_fontSize",get_fontSize:"get_fontSize",set_font:"set_font",get_font:"get_font",set_color:"set_color",get_color:"get_color",set_imageScaleQuality:"set_imageScaleQuality",get_imageScaleQuality:"get_imageScaleQuality"}
+	,__properties__: {set_pipeline:"set_pipeline",set_opacity:"set_opacity",get_opacity:"get_opacity",set_fontSize:"set_fontSize",get_fontSize:"get_fontSize",set_font:"set_font",get_font:"get_font",set_color:"set_color",get_color:"get_color",set_imageScaleQuality:"set_imageScaleQuality",get_imageScaleQuality:"get_imageScaleQuality"}
 };
 var kha_graphics2_Graphics1 = function(canvas) {
 	this.canvas = canvas;
@@ -14496,6 +14525,8 @@ kha_graphics4_Graphics.prototype = {
 	,setTexture: null
 	,setTextureParameters: null
 	,setPipeline: null
+	,setFloat: null
+	,setVector2: null
 	,setMatrix: null
 	,drawIndexedVertices: null
 	,__class__: kha_graphics4_Graphics
@@ -18974,6 +19005,12 @@ kha_js_graphics4_Graphics.prototype = {
 		this.colorMaskBlue = pipe.colorWriteMasksBlue[0];
 		this.colorMaskAlpha = pipe.colorWriteMasksAlpha[0];
 	}
+	,setFloat: function(location,value) {
+		kha_SystemImpl.gl.uniform1f((js_Boot.__cast(location , kha_js_graphics4_ConstantLocation)).value,value);
+	}
+	,setVector2: function(location,value) {
+		kha_SystemImpl.gl.uniform2f((js_Boot.__cast(location , kha_js_graphics4_ConstantLocation)).value,value.x,value.y);
+	}
 	,matrixCache: null
 	,setMatrix: function(location,matrix) {
 		this.matrixCache[0] = matrix._00;
@@ -19233,6 +19270,23 @@ kha_math_FastMatrix4.prototype = {
 	,_23: null
 	,_33: null
 	,__class__: kha_math_FastMatrix4
+};
+var kha_math_FastVector2 = function(x,y) {
+	if(y == null) {
+		y = 0;
+	}
+	if(x == null) {
+		x = 0;
+	}
+	this.x = x;
+	this.y = y;
+};
+$hxClasses["kha.math.FastVector2"] = kha_math_FastVector2;
+kha_math_FastVector2.__name__ = "kha.math.FastVector2";
+kha_math_FastVector2.prototype = {
+	x: null
+	,y: null
+	,__class__: kha_math_FastVector2
 };
 var kha_netsync_ControllerBuilder = function() { };
 $hxClasses["kha.netsync.ControllerBuilder"] = kha_netsync_ControllerBuilder;
@@ -21349,14 +21403,14 @@ no_logic_kha_uix_core_loading_UIXLoader.executeLoaderQueueItem = function(itemIn
 	}
 };
 no_logic_kha_uix_core_loading_UIXLoader.onQueueItemComplete = function(uxl) {
-	haxe_Log.trace("Queue item loaded: " + uxl.source,{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 938, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueItemComplete"});
+	haxe_Log.trace("Queue item loaded: " + uxl.source,{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 939, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueItemComplete"});
 	if(no_logic_kha_uix_core_loading_UIXLoader.onQueueItemCompleteCallback != null) {
 		no_logic_kha_uix_core_loading_UIXLoader.onQueueItemCompleteCallback(uxl);
 	}
 	no_logic_kha_uix_core_loading_UIXLoader.nextQueueItem();
 };
 no_logic_kha_uix_core_loading_UIXLoader.onQueueItemError = function(uxl) {
-	haxe_Log.trace("Queue item failed to load: " + uxl.source,{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 946, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueItemError"});
+	haxe_Log.trace("Queue item failed to load: " + uxl.source,{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 947, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueItemError"});
 	if(no_logic_kha_uix_core_loading_UIXLoader.onQueueItemLoadErrorCallback != null) {
 		no_logic_kha_uix_core_loading_UIXLoader.onQueueItemLoadErrorCallback(uxl);
 	}
@@ -21365,11 +21419,11 @@ no_logic_kha_uix_core_loading_UIXLoader.onQueueItemError = function(uxl) {
 no_logic_kha_uix_core_loading_UIXLoader.nextQueueItem = function() {
 	no_logic_kha_uix_core_loading_UIXLoader.loaderQueueIndex++;
 	if(no_logic_kha_uix_core_loading_UIXLoader.loaderQueueIndex >= no_logic_kha_uix_core_loading_UIXLoader.loaderQueue.length) {
-		haxe_Log.trace("Queue loaded complete!",{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 963, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueCompleted"});
+		haxe_Log.trace("Queue loaded complete!",{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 964, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueCompleted"});
 		if(no_logic_kha_uix_core_loading_UIXLoader.onQueueCompleteCallback != null) {
 			no_logic_kha_uix_core_loading_UIXLoader.onQueueCompleteCallback();
 		}
-		haxe_Log.trace(no_logic_kha_uix_UIX.cache.images.list().length,{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 967, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueCompleted"});
+		haxe_Log.trace(no_logic_kha_uix_UIX.cache.images.list().length,{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 968, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "onQueueCompleted"});
 	} else {
 		no_logic_kha_uix_core_loading_UIXLoader.executeLoaderQueueItem(no_logic_kha_uix_core_loading_UIXLoader.loaderQueueIndex);
 	}
@@ -21412,11 +21466,13 @@ no_logic_kha_uix_core_loading_UIXLoader.prototype = {
 				no_logic_kha_uix_UIX.get_c().log("Grabbed from cache: " + this.source);
 				this.contentIMAGE = no_logic_kha_uix_UIX.cache.images.get(this.source);
 				if(this.onComplete != null) {
-					this.onComplete(this);
+					if(this.onComplete != null) {
+						this.onComplete(this);
+					}
 				}
 			} else if(this.pathType == "urlloader_localFile") {
 				if(no_logic_kha_uix_core_loading_UIXLoader.fileExists(this.source)) {
-					kha_Assets.loadImageFromPath(this.source,false,$bind(this,this.onImageLoaded),$bind(this,this.onFileLoadError),{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 167, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "loadImage"});
+					kha_Assets.loadImageFromPath(this.source,false,$bind(this,this.onImageLoaded),$bind(this,this.onFileLoadError),{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 168, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "loadImage"});
 				} else {
 					no_logic_kha_uix_debug_DebugInspector.get_i().notfound("File not found : " + this.source);
 				}
@@ -21503,7 +21559,7 @@ no_logic_kha_uix_core_loading_UIXLoader.prototype = {
 				}
 			} else if(this.pathType == "urlloader_localFile") {
 				if(no_logic_kha_uix_core_loading_UIXLoader.fileExists(this.source)) {
-					kha_Assets.loadBlobFromPath(this.source,$bind(this,this.onBlobLoaded),$bind(this,this.onFileLoadError),{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 337, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "load"});
+					kha_Assets.loadBlobFromPath(this.source,$bind(this,this.onBlobLoaded),$bind(this,this.onFileLoadError),{ fileName : "no/logic/kha/uix/core/loading/UIXLoader.hx", lineNumber : 338, className : "no.logic.kha.uix.core.loading.UIXLoader", methodName : "load"});
 				} else {
 					no_logic_kha_uix_debug_DebugInspector.get_i().notfound("File not found : " + this.source);
 				}
@@ -23272,6 +23328,33 @@ no_logic_kha_uix_fla_FlaTimeline.prototype = {
 var no_logic_kha_uix_graphics_Draw = function() { };
 $hxClasses["no.logic.kha.uix.graphics.Draw"] = no_logic_kha_uix_graphics_Draw;
 no_logic_kha_uix_graphics_Draw.__name__ = "no.logic.kha.uix.graphics.Draw";
+var no_logic_kha_uix_graphics_shaders_PipelineTools = function() { };
+$hxClasses["no.logic.kha.uix.graphics.shaders.PipelineTools"] = no_logic_kha_uix_graphics_shaders_PipelineTools;
+no_logic_kha_uix_graphics_shaders_PipelineTools.__name__ = "no.logic.kha.uix.graphics.shaders.PipelineTools";
+no_logic_kha_uix_graphics_shaders_PipelineTools.createPipeline = function(fragmentShader,vertexShader) {
+	var pipeline = new kha_graphics4_PipelineState();
+	var structure = new kha_graphics4_VertexStructure();
+	structure.add("vertexPosition",2);
+	structure.add("texPosition",1);
+	structure.add("vertexColor",3);
+	pipeline.inputLayout = [structure];
+	if(vertexShader == null) {
+		pipeline.vertexShader = kha_Shaders.painter_image_vert;
+	} else {
+		pipeline.vertexShader = vertexShader;
+	}
+	if(fragmentShader == null) {
+		pipeline.fragmentShader = kha_Shaders.painter_image_frag;
+	} else {
+		pipeline.fragmentShader = fragmentShader;
+	}
+	pipeline.blendSource = 1;
+	pipeline.blendDestination = 1;
+	pipeline.alphaBlendSource = 3;
+	pipeline.alphaBlendDestination = 5;
+	pipeline.compile();
+	return pipeline;
+};
 var no_logic_kha_uix_input_MouseManager = function() { };
 $hxClasses["no.logic.kha.uix.input.MouseManager"] = no_logic_kha_uix_input_MouseManager;
 no_logic_kha_uix_input_MouseManager.__name__ = "no.logic.kha.uix.input.MouseManager";
@@ -41872,6 +41955,9 @@ kha_Shaders.simple_fragData2 = "s207:I3ZlcnNpb24gMTAwCnByZWNpc2lvbiBtZWRpdW1wIGZ
 kha_Shaders.simple_vertData0 = "s242:I3ZlcnNpb24gMTAwCgphdHRyaWJ1dGUgbWF0NCBtOwphdHRyaWJ1dGUgdmVjMyBwb3M7CnZhcnlpbmcgdmVjMyBmcmFnbWVudENvbG9yOwphdHRyaWJ1dGUgdmVjMyBjb2w7Cgp2b2lkIG1haW4oKQp7CiAgICBnbF9Qb3NpdGlvbiA9IG0gKiB2ZWM0KHBvcywgMS4wKTsKICAgIGZyYWdtZW50Q29sb3IgPSBjb2w7Cn0KCg";
 kha_Shaders.simple_vertData1 = "s212:I3ZlcnNpb24gMzAwIGVzCgppbiBtYXQ0IG07CmluIHZlYzMgcG9zOwpvdXQgdmVjMyBmcmFnbWVudENvbG9yOwppbiB2ZWMzIGNvbDsKCnZvaWQgbWFpbigpCnsKICAgIGdsX1Bvc2l0aW9uID0gbSAqIHZlYzQocG9zLCAxLjApOwogICAgZnJhZ21lbnRDb2xvciA9IGNvbDsKfQoK";
 kha_Shaders.simple_vertData2 = "s284:I3ZlcnNpb24gMTAwCgphdHRyaWJ1dGUgbWVkaXVtcCBtYXQ0IG07CmF0dHJpYnV0ZSBtZWRpdW1wIHZlYzMgcG9zOwp2YXJ5aW5nIG1lZGl1bXAgdmVjMyBmcmFnbWVudENvbG9yOwphdHRyaWJ1dGUgbWVkaXVtcCB2ZWMzIGNvbDsKCnZvaWQgbWFpbigpCnsKICAgIGdsX1Bvc2l0aW9uID0gbSAqIHZlYzQocG9zLCAxLjApOwogICAgZnJhZ21lbnRDb2xvciA9IGNvbDsKfQoK";
+kha_Shaders.sinescroll_fragData0 = "s914:I3ZlcnNpb24gMTAwCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gaGlnaHAgaW50OwoKdW5pZm9ybSBoaWdocCB2ZWMyIHJlc29sdXRpb247CnVuaWZvcm0gaGlnaHAgdmVjMiBzY3JvbGxSZXM7CnVuaWZvcm0gaGlnaHAgZmxvYXQgZnJlcXVlbmN5Owp1bmlmb3JtIGhpZ2hwIGZsb2F0IGFtcGxpdHVkZTsKdW5pZm9ybSBoaWdocCBzYW1wbGVyMkQgdGV4Owp1bmlmb3JtIGhpZ2hwIGZsb2F0IHlvZmZzZXQ7Cgp2YXJ5aW5nIGhpZ2hwIHZlYzIgdGV4Q29vcmQ7CnZhcnlpbmcgaGlnaHAgdmVjNCBjb2xvcjsKCnZvaWQgbWFpbigpCnsKICAgIGhpZ2hwIHZlYzIgc2YgPSByZXNvbHV0aW9uIC8gc2Nyb2xsUmVzOwogICAgaGlnaHAgdmVjMiB5cG9zID0gdmVjMih0ZXhDb29yZC54LCB0ZXhDb29yZC55KSAqIHNmOwogICAgeXBvcy55IC09ICgoMC41ICogc2YueSkgKyAoc2luKCh0ZXhDb29yZC54ICogc2YueCkgKiBmcmVxdWVuY3kpICogYW1wbGl0dWRlKSk7CiAgICBoaWdocCB2ZWM0IHRleGNvbG9yID0gdGV4dHVyZTJEKHRleCwgeXBvcykgKiBjb2xvcjsKICAgIGhpZ2hwIHZlYzMgXzczID0gdGV4Y29sb3IueHl6ICogY29sb3IudzsKICAgIHRleGNvbG9yID0gdmVjNChfNzMueCwgXzczLnksIF83My56LCB0ZXhjb2xvci53KTsKICAgIGdsX0ZyYWdEYXRhWzBdID0gdGV4Y29sb3I7Cn0KCg";
+kha_Shaders.sinescroll_fragData1 = "s930:I3ZlcnNpb24gMzAwIGVzCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gaGlnaHAgaW50OwoKdW5pZm9ybSBoaWdocCB2ZWMyIHJlc29sdXRpb247CnVuaWZvcm0gaGlnaHAgdmVjMiBzY3JvbGxSZXM7CnVuaWZvcm0gaGlnaHAgZmxvYXQgZnJlcXVlbmN5Owp1bmlmb3JtIGhpZ2hwIGZsb2F0IGFtcGxpdHVkZTsKdW5pZm9ybSBoaWdocCBzYW1wbGVyMkQgdGV4Owp1bmlmb3JtIGhpZ2hwIGZsb2F0IHlvZmZzZXQ7CgppbiBoaWdocCB2ZWMyIHRleENvb3JkOwppbiBoaWdocCB2ZWM0IGNvbG9yOwpvdXQgaGlnaHAgdmVjNCBmcmFnQ29sb3I7Cgp2b2lkIG1haW4oKQp7CiAgICBoaWdocCB2ZWMyIHNmID0gcmVzb2x1dGlvbiAvIHNjcm9sbFJlczsKICAgIGhpZ2hwIHZlYzIgeXBvcyA9IHZlYzIodGV4Q29vcmQueCwgdGV4Q29vcmQueSkgKiBzZjsKICAgIHlwb3MueSAtPSAoKDAuNSAqIHNmLnkpICsgKHNpbigodGV4Q29vcmQueCAqIHNmLngpICogZnJlcXVlbmN5KSAqIGFtcGxpdHVkZSkpOwogICAgaGlnaHAgdmVjNCB0ZXhjb2xvciA9IHRleHR1cmUodGV4LCB5cG9zKSAqIGNvbG9yOwogICAgaGlnaHAgdmVjMyBfNzMgPSB0ZXhjb2xvci54eXogKiBjb2xvci53OwogICAgdGV4Y29sb3IgPSB2ZWM0KF83My54LCBfNzMueSwgXzczLnosIHRleGNvbG9yLncpOwogICAgZnJhZ0NvbG9yID0gdGV4Y29sb3I7Cn0KCg";
+kha_Shaders.sinescroll_fragData2 = "s831:I3ZlcnNpb24gMTAwCnByZWNpc2lvbiBtZWRpdW1wIGZsb2F0OwpwcmVjaXNpb24gbWVkaXVtcCBpbnQ7Cgp1bmlmb3JtIHZlYzIgcmVzb2x1dGlvbjsKdW5pZm9ybSB2ZWMyIHNjcm9sbFJlczsKdW5pZm9ybSBmbG9hdCBmcmVxdWVuY3k7CnVuaWZvcm0gZmxvYXQgYW1wbGl0dWRlOwp1bmlmb3JtIG1lZGl1bXAgc2FtcGxlcjJEIHRleDsKdW5pZm9ybSBmbG9hdCB5b2Zmc2V0OwoKdmFyeWluZyB2ZWMyIHRleENvb3JkOwp2YXJ5aW5nIHZlYzQgY29sb3I7Cgp2b2lkIG1haW4oKQp7CiAgICB2ZWMyIHNmID0gcmVzb2x1dGlvbiAvIHNjcm9sbFJlczsKICAgIHZlYzIgeXBvcyA9IHZlYzIodGV4Q29vcmQueCwgdGV4Q29vcmQueSkgKiBzZjsKICAgIHlwb3MueSAtPSAoKDAuNSAqIHNmLnkpICsgKHNpbigodGV4Q29vcmQueCAqIHNmLngpICogZnJlcXVlbmN5KSAqIGFtcGxpdHVkZSkpOwogICAgdmVjNCB0ZXhjb2xvciA9IHRleHR1cmUyRCh0ZXgsIHlwb3MpICogY29sb3I7CiAgICB2ZWMzIF83MyA9IHRleGNvbG9yLnh5eiAqIGNvbG9yLnc7CiAgICB0ZXhjb2xvciA9IHZlYzQoXzczLngsIF83My55LCBfNzMueiwgdGV4Y29sb3Iudyk7CiAgICBnbF9GcmFnRGF0YVswXSA9IHRleGNvbG9yOwp9Cgo";
 kha_System.renderListeners = [];
 kha_System.foregroundListeners = [];
 kha_System.backgroundListeners = [];
@@ -42179,4 +42265,4 @@ trilateral_geom_Algebra.cubicStep = 0.03;
 STMain.main();
 })(typeof exports != "undefined" ? exports : typeof window != "undefined" ? window : typeof self != "undefined" ? self : this, typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);
 
-//# sourceMappingURL=kha.js.map
+//# sourceMappingURL=uix.js.map
