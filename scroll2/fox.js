@@ -2868,7 +2868,7 @@ app_ScrollLayer.prototype = $extend(no_logic_kha_fox_displaylist_Sprite.prototyp
 		this.bmFont.charScale = this.charScale;
 		this.bmFont.upperCaseOnly = true;
 		this.numLetters = Math.ceil(this.width / (32 * this.charScale)) + 2;
-		this.scrollText = "                       RETRO IS THE WAY. WELL, ATLEAST SINESCROLLERS ARE. OH, AND THE MOD PLAYING RIGHT NOW IS \"OVERLOAD\" BY TIP / MANTRONIX. AWESOME TUNE!                          ";
+		this.scrollText = "                       RETRO IS THE WAY. WELL, ATLEAST SINESCROLLERS ARE. OH, AND THE MOD PLAYING RIGHT NOW IS OVERLOAD BY TIP / MANTRONIX. AWESOME TUNE!                          ";
 		this.sca = kha_StringExtensions.toCharArray(this.scrollText);
 		this.resizeScroll();
 		this.pipeline = no_logic_kha_fox_gl_PipelineTools.createPipeline(kha_Shaders.sinescroll_frag,null);
@@ -6871,98 +6871,14 @@ js_lib__$ArrayBuffer_ArrayBufferCompat.sliceImpl = function(begin,end) {
 	return resultArray.buffer;
 };
 var kha__$Assets_ImageList = function() {
-	this.topxDescription = { name : "topx", original_height : 1080, file_sizes : [2346960], original_width : 1920, files : ["topx.png"], type : "image"};
-	this.topx = null;
-	this.snowpile2Description = { name : "snowpile2", original_height : 72, file_sizes : [709], original_width : 544, files : ["snowpile2.png"], type : "image"};
-	this.snowpile2 = null;
-	this.snowpile1Description = { name : "snowpile1", original_height : 48, file_sizes : [521], original_width : 384, files : ["snowpile1.png"], type : "image"};
-	this.snowpile1 = null;
-	this.snowfontDescription = { name : "snowfont", original_height : 192, file_sizes : [58431], original_width : 318, files : ["snowfont.png"], type : "image"};
-	this.snowfont = null;
-	this.snow1Description = { name : "snow1", original_height : 64, file_sizes : [2445], original_width : 64, files : ["snow1.png"], type : "image"};
-	this.snow1 = null;
-	this.snowDescription = { name : "snow", original_height : 36, file_sizes : [307], original_width : 32, files : ["snow.png"], type : "image"};
-	this.snow = null;
-	this.rudolf_2Description = { name : "rudolf_2", original_height : 410, file_sizes : [2647], original_width : 270, files : ["rudolf_2.png"], type : "image"};
-	this.rudolf_2 = null;
-	this.rudolf_1Description = { name : "rudolf_1", original_height : 410, file_sizes : [2660], original_width : 270, files : ["rudolf_1.png"], type : "image"};
-	this.rudolf_1 = null;
-	this.rectxDescription = { name : "rectx", original_height : 256, file_sizes : [867], original_width : 256, files : ["rectx.png"], type : "image"};
-	this.rectx = null;
-	this.playbuttonDescription = { name : "playbutton", original_height : 97, file_sizes : [3423], original_width : 97, files : ["playbutton.png"], type : "image"};
-	this.playbutton = null;
-	this.nisse_2Description = { name : "nisse_2", original_height : 400, file_sizes : [1887], original_width : 180, files : ["nisse_2.png"], type : "image"};
-	this.nisse_2 = null;
-	this.nisse_1Description = { name : "nisse_1", original_height : 400, file_sizes : [1902], original_width : 180, files : ["nisse_1.png"], type : "image"};
-	this.nisse_1 = null;
-	this.logo_del2Description = { name : "logo_del2", original_height : 50, file_sizes : [14143], original_width : 758, files : ["logo_del2.png"], type : "image"};
-	this.logo_del2 = null;
-	this.logo_del1Description = { name : "logo_del1", original_height : 514, file_sizes : [236353], original_width : 1007, files : ["logo_del1.png"], type : "image"};
-	this.logo_del1 = null;
-	this.introtekstDescription = { name : "introtekst", original_height : 24, file_sizes : [933], original_width : 862, files : ["introtekst.png"], type : "image"};
-	this.introtekst = null;
-	this.intro_tingDescription = { name : "intro_ting", original_height : 285, file_sizes : [3223], original_width : 486, files : ["intro_ting.png"], type : "image"};
-	this.intro_ting = null;
-	this.intro1Description = { name : "intro1", original_height : 1080, file_sizes : [606163], original_width : 1920, files : ["intro1.jpg"], type : "image"};
-	this.intro1 = null;
-	this.ice_2Description = { name : "ice_2", original_height : 80, file_sizes : [666], original_width : 150, files : ["ice_2.png"], type : "image"};
-	this.ice_2 = null;
-	this.ice_1Description = { name : "ice_1", original_height : 130, file_sizes : [1624], original_width : 530, files : ["ice_1.png"], type : "image"};
-	this.ice_1 = null;
 	this.bmfont3Description = { name : "bmfont3", original_height : 192, file_sizes : [23363], original_width : 318, files : ["bmfont3.png"], type : "image"};
 	this.bmfont3 = null;
-	this.bmfontDescription = { name : "bmfont", original_height : 192, file_sizes : [12473], original_width : 318, files : ["bmfont.png"], type : "image"};
-	this.bmfont = null;
-	this.background1Description = { name : "background1", original_height : 1080, file_sizes : [303667], original_width : 1920, files : ["background1.jpg"], type : "image"};
-	this.background1 = null;
 };
 $hxClasses["kha._Assets.ImageList"] = kha__$Assets_ImageList;
 kha__$Assets_ImageList.__name__ = "kha._Assets.ImageList";
 kha__$Assets_ImageList.prototype = {
-	background1: null
-	,background1Description: null
-	,bmfont: null
-	,bmfontDescription: null
-	,bmfont3: null
+	bmfont3: null
 	,bmfont3Description: null
-	,ice_1: null
-	,ice_1Description: null
-	,ice_2: null
-	,ice_2Description: null
-	,intro1: null
-	,intro1Description: null
-	,intro_ting: null
-	,intro_tingDescription: null
-	,introtekst: null
-	,introtekstDescription: null
-	,logo_del1: null
-	,logo_del1Description: null
-	,logo_del2: null
-	,logo_del2Description: null
-	,nisse_1: null
-	,nisse_1Description: null
-	,nisse_2: null
-	,nisse_2Description: null
-	,playbutton: null
-	,playbuttonDescription: null
-	,rectx: null
-	,rectxDescription: null
-	,rudolf_1: null
-	,rudolf_1Description: null
-	,rudolf_2: null
-	,rudolf_2Description: null
-	,snow: null
-	,snowDescription: null
-	,snow1: null
-	,snow1Description: null
-	,snowfont: null
-	,snowfontDescription: null
-	,snowpile1: null
-	,snowpile1Description: null
-	,snowpile2: null
-	,snowpile2Description: null
-	,topx: null
-	,topxDescription: null
 	,__class__: kha__$Assets_ImageList
 };
 var kha__$Assets_SoundList = function() {
